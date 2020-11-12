@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Chat</title>
+</head>
+<body>
+    <h1 style="border: 1px solid black;">Chat</h1>
+
+
+    <div class="chat_div" id="mld_div">
+        <!--
+        <div class="container">
+            <p>Hei! Hva skjer</p>
+        </div>
+        -->
+    </div>
+
+
+    <form id="form" class="inp_form">
+        <input id="tekst" class="txt_field" required placeholder="Tekst..."/>
+        <button type="submit" class="send_btn">Send</button>
+    </form>
+    
+    
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+    <script>
+        /* FIREBASE INITIALISERING - også laget av firebase */
+        var config = {
+            apiKey: "AIzaSyDsMTfE8vkgE6CsUHLtK7mqVif0xpAual4",
+            authDomain: "the-cuban.firebaseapp.com",
+            databaseURL: "https://the-cuban.firebaseio.com",
+            projectId: "the-cuban",
+            storageBucket: "the-cuban.appspot.com",
+            messagingSenderId: "646336027967"
+        };
+        firebase.initializeApp(config);
+
+
+        var chat = firebase.database().ref().child('Meldinger');
+        var username = "Per";
+        var form = document.getElementById("form");
+        var msg_inp = document.getElementById("tekst");
+        var msg_div = document.getElementById("mld_div");
+
+
+        form.onsubmit = function(evt) {
+            evt.preventDefault(); 
+            chat.push({
+                "Melding": msg_inp.value,
+                "Brukernavn": username
+            });
+        }
+
+
+        chat.on("child_added", function(snapshot) {
+            var message = snapshot.val();
+            
+            if(message.Brukernavn === "Per") {
+                msg_div.innerHTML +=    `<div class='container'>
+                                            <p> ${message.Melding} </p>
+                                        </div>`;
+            }
+            else if(message.Brukernavn === "Kari") {
+                msg_div.innerHTML +=    `<div class='container2'>
+                                            <p> ${message.Melding} </p>
+                                        </div>`;
+            }
+        });
+    </script>
+</body>
+</html>

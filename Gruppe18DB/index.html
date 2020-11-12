@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/index.css">
+    <title>Login</title>
+</head>
+<body>
+    <div id="login_div" class="main-div">
+        <h3>Firebase Web login</h3>
+        <input type="email" placeholder="Email..." id="email_field" />
+        <input type="password" placeholder="Password..." id="password_field" />
+
+        <button onclick="login()">Login to Account</button>
+    </div>
+
+
+    <div id="user_div" class="loggedin-div">
+        <!-- <h3>Welcome User</h3> -->
+        <!-- <p id="user_para">Welcome to Firebase web login Example. You're currently logged in.</p> -->
+        <!-- <button onclick="logout()">Logout</button> -->
+        
+        <h3 id="user_para">Velkommen inn</h3>
+        <a href="chat.html">Chat</a>
+        <a href="tilbud.html">Tilbud</a>
+        <a href="etter.html">Etterspørsel</a>
+        <a href="posisjon.html">Se posisjoner</a>
+        <a href="#" onclick="logout()">Log ut</a>-->
+    </div>
+    
+
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+    <script>
+        /* FIREBASE INITIALISERING - også laget av firebase */
+        var config = {
+            apiKey: "AIzaSyDsMTfE8vkgE6CsUHLtK7mqVif0xpAual4",
+            authDomain: "the-cuban.firebaseapp.com",
+            databaseURL: "https://the-cuban.firebaseio.com",
+            projectId: "the-cuban",
+            storageBucket: "the-cuban.appspot.com",
+            messagingSenderId: "646336027967"
+        };
+        firebase.initializeApp(config);
+    </script>
+    <script src="js/index.js"></script>
+</body>
+</html>

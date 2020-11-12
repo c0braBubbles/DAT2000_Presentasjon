@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Posisjon</title>
+</head>
+<body>
+    <h1>Posisjon</h1>
+
+
+    <div class="offers" id="posisjoner"></div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+    <script>
+        /* FIREBASE INITIALISERING - også laget av firebase */
+        var config = {
+            apiKey: "AIzaSyDsMTfE8vkgE6CsUHLtK7mqVif0xpAual4",
+            authDomain: "the-cuban.firebaseapp.com",
+            databaseURL: "https://the-cuban.firebaseio.com",
+            projectId: "the-cuban",
+            storageBucket: "the-cuban.appspot.com",
+            messagingSenderId: "646336027967"
+        };
+        firebase.initializeApp(config);
+
+
+        /*var demands = firebase.database().ref().child('Etterspørsler');
+        var offers = firebase.database().ref().child('Tilbud');
+        var positions = firebase.database().ref().child('Posisjon');*/
+        var pos_div = document.getElementById("posisjoner");
+
+
+        var tables = [
+            firebase.database().ref().child('Etterspørsler'),
+            firebase.database().ref().child('Tilbud'),
+            firebase.database().ref().child('Posisjon')
+        ];
+
+
+        for(let i = 0; i < tables.length; i++) {
+            tables[i].on("child_added", function(snapshot) {
+            var message = snapshot.val();
+            pos_div.innerHTML +=    `<div class='offer'>
+                                        <h3> ${message.Tittel} </h3>
+                                        <p> ${message.Beskrivelse} </p>
+                                        <p> Bruker: ${message.Brukernavn} </p>
+                                        <p> Sted: ${JSON.stringify(message.city)}, ${message.country} </p>
+                                    </div>`;
+            });
+        }
+    </script>
+</body>
+</html>

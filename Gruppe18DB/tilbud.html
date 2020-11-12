@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Tilbud</title>
+</head>
+<body>
+    <h1>Tilbud</h1>
+
+    <form id="formen">
+        <input id="tittel" required placeholder="Tittel på annonse"/>
+        <br>
+        <input id="beskrivelse" required placeholder="Beskrivelse..."/>
+        <br>
+        <button type="submit" id="Send">Send!</button>
+        <p>Ved å trykke send henter vi din posisjon ved bruk av din offentlige IP-adresse</p>
+        <br>
+    </form>
+
+    <div class="offers" id="tilbudene"></div>
+
+
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+    <script>
+        /* FIREBASE INITIALISERING */
+        var config = {
+            apiKey: "AIzaSyDsMTfE8vkgE6CsUHLtK7mqVif0xpAual4",
+            authDomain: "the-cuban.firebaseapp.com",
+            databaseURL: "https://the-cuban.firebaseio.com",
+            projectId: "the-cuban",
+            storageBucket: "the-cuban.appspot.com",
+            messagingSenderId: "646336027967"
+        };
+        firebase.initializeApp(config);
+
+
+        var city = "";
+        var country = "";
+        $(document).ready(function() {
+            $.get("http://ipinfo.io", function(response) {
+                console.log(response); 
+                city = response.city; 
+                country = response.country;
+            }, "jsonp");
+        })
+    
+        
+        /* DATABASE KODE */
+        var patient_zero = 0;
+        var offers = firebase.database().ref().child('Tilbud');
+        var form = document.getElementById("formen");
+        var title = document.getElementById("tittel");
+        var description = document.getElementById("beskrivelse");
+        var offers_div = document.getElementById("tilbudene");
+
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                // User is signed in.
+
+                var email_id = user.email;
+                console.log(email_id);
+
+                form.onsubmit = function(evt) {
+                    evt.preventDefault(); 
+                    offers.push({
+                        "Tittel": title.value, 
+                        "Beskrivelse": description.value,
+                        "Brukernavn": email_id, 
+                        "By": city, 
+                        "Land": country, 
+                        "ID_Nr": patient_zero++
+                    });
+
+                    title.value = ""; 
+                    description.value = ""; 
+                    username.value = "";
+                }
+            } 
+            else {
+                // No user is signed in.
+            }
+        });
+
+
+        offers.on("child_added", function(snapshot) {
+            var message = snapshot.val(); 
+            offers_div.innerHTML += `<div class='offer'>
+                                        <h3> ${message.Tittel} </h3>
+                                        <p> ${message.Beskrivelse} </p>
+                                        <p> Bruker: ${message.Brukernavn} </p>
+                                        <p> Sted: ${JSON.stringify(message.city)}, ${message.country} </p>
+                                    </div>`;
+            
+            patient_zero = message.ID_Nr;
+        });
+    </script>
+</body>
+</html>

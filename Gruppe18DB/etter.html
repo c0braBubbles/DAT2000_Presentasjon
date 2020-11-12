@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Etterspørsler</title>
+</head>
+<body>
+    <h1>Etterspørsler</h1>
+
+
+    <!-- Form = skjema hvor informasjon skal hentes fra å sende til DB -->
+    <form id="formen">
+        <input id="tittel" required placeholder="Tittel på annonse"/>
+        <br>
+        <input id="beskrivelse" required placeholder="Beskrivelse..."/>
+        <br>
+        <button type="submit" id="Send">Send!</button>
+        <p>Ved å trykke send henter vi din posisjon ved bruk av din offentlige IP-adresse</p>
+        <br>
+    </form>
+
+
+    <div class="offers" id="ettersporsler"></div>
+
+
+    <!-- JQUERY for posisjon -->
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+
+    <!-- Script laget fra firebase -->
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+    <script>
+        /* FIREBASE INITIALISERING - også laget av firebase */
+        var config = {
+            apiKey: "AIzaSyDsMTfE8vkgE6CsUHLtK7mqVif0xpAual4",
+            authDomain: "the-cuban.firebaseapp.com",
+            databaseURL: "https://the-cuban.firebaseio.com",
+            projectId: "the-cuban",
+            storageBucket: "the-cuban.appspot.com",
+            messagingSenderId: "646336027967"
+        };
+        firebase.initializeApp(config);
+        /* Alt fra linje 31 til 42 må du ha for å kommunisere med DB (kobling) */
+
+
+        // Posisjon ting
+        var city = "";
+        var country = "";
+        $(document).ready(function() {
+            $.get("http://ipinfo.io", function(response) {
+                console.log(response); 
+                city = response.city; 
+                country = response.country;
+            }, "jsonp");
+        })
+
+
+        var demands = firebase.database().ref().child('Etterspørsler'); // Sier til databasen: legg data under "tabell" Etterspørsler
+        var form = document.getElementById("formen");                   // HTML element. Referer til formen. Legg merke knappen inni
+        var title = document.getElementById("tittel");                  // Input for å hente verdier 
+        var description = document.getElementById("beskrivelse");       // Input for å hente verdier
+        var username = document.getElementById("brukernavn");           // Input for å hente verdier
+        var demands_div = document.getElementById("ettersporsler");     // Div for output fra DB
+        var patient_zero = 0; 
+
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                // User is signed in.
+                var email_id = user.email;
+
+                /* Når du trykker på knappen "send" skjer denne funksjonen her */
+                form.onsubmit = function(evt) {
+                    evt.preventDefault();   // Vet ikke hva dette betyr
+                    demands.push({          // pusher JS-objektet under til databasen. Lager "rader/tabell"
+                        "Tittel": title.value, 
+                        "Beskrivelse": description.value,
+                        "Brukernavn": email_id,
+                        "By": city, 
+                        "Land": country, 
+                        "ID_Nr": patient_zero++
+                    });
+                }
+            } 
+
+            else {
+                // No user is signed in.
+            }
+        });
+
+        
+        /* Linja under betyr: når data er lagt inn skal vi hente screenshot av dataen*/
+        demands.on("child_added", function(snapshot) {
+            var message = snapshot.val();       // tenk på dette som et objekt for å hente ut verdier
+            demands_div.innerHTML += `<div class='offer'>
+                                        <h3> ${message.Tittel} </h3>
+                                        <p> ${message.Beskrivelse} </p>
+                                        <p> Bruker: ${message.Brukernavn} </p>
+                                        <p> Sted: ${JSON.stringify(message.city)}, ${message.country} </p>
+                                     </div>`;
+
+            patient_zero = message.ID_Nr;
+        });
+    </script>
+</body>
+</html>
